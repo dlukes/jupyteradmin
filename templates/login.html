@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<form method="POST" action="{{ url_for('login') }}">
+  {{ form.hidden_tag() }}
+  {{ form.username.label }} {{ form.username() }}
+  {{ form.password.label }} {{ form.password() }}
+  <input type="submit" value="Log in">
+</form>
+{% endblock %}
+<!-- Local Variables: -->
+<!-- mode: web -->
+<!-- web-mode-markup-indent-offset: 2 -->
+<!-- web-mode-css-indent-offset: 2 -->
+<!-- End: -->

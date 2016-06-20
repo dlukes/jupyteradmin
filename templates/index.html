@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<p>Welcome to the admin panel for
+  <a href="https://jupyter.korpus.cz">jupyter.korpus.cz</a>. You can:
+</p>
+<ul>
+  <li><a href="{{ url_for('passwd') }}">change your password</a></li>
+  {% if session.is_admin %}
+  <li><a href="{{ url_for('adduser') }}">add new users to the system</a></li>
+  {% endif %}
+  <li><a href="{{ url_for('ls') }}">list the contents of your home directory</a></li>
+</ul>
+{% endblock %}
+<!-- Local Variables: -->
+<!-- mode: web -->
+<!-- web-mode-markup-indent-offset: 2 -->
+<!-- web-mode-css-indent-offset: 2 -->
+<!-- End: -->
