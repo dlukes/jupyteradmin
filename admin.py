@@ -3,10 +3,10 @@ import grp
 import pam
 
 from flask import Flask, flash, redirect, render_template, session, url_for
-from flask_login import LoginManager, UserMixin, login_user,\
+from flask_login import LoginManager, UserMixin, login_user, logout_user,\
     login_required
 from flask_wtf import Form
-from wtforms import StringField, PasswordField
+from wtforms import PasswordField, StringField, SubmitField
 from wtforms.validators import InputRequired
 from flask_bootstrap import Bootstrap
 
@@ -35,10 +35,16 @@ class User(UserMixin):
 
 class LoginForm(Form):
 
-    username = StringField("username", validators=[
+    username = StringField("Username", validators=[
         InputRequired(message="Please provide a username.")])
-    password = PasswordField("password", validators=[
+    password = PasswordField("Password", validators=[
         InputRequired(message="Please provide a password.")])
+    submit = SubmitField("Log in")
+
+
+#####################
+# UTILITY FUNCTIONS #
+#####################
 
 
 @lm.user_loader
@@ -51,6 +57,16 @@ def flash_form_errors(form):
         for error in errors:
             flash("Error in {!r}: {}".format(
                 getattr(form, field).label.text, error))
+
+
+# @app.context_processor
+# def utility_processor():
+#     return dict(quick_form=quick_form)
+
+
+##########
+# ROUTES #
+##########
 
 
 @app.route("/admin/")
@@ -81,6 +97,13 @@ def login():
     return render_template("login.html", form=form)
 
 
+@app.route("/admin/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("login"))
+
+
 @app.route("/admin/passwd")
 @login_required
 def passwd():
@@ -97,4 +120,5 @@ def adduser():
 @login_required
 def ls():
     home = os.path.join("/home", session["username"])
-    return "<br/>".join(item for item in sorted(os.listdir(home)))
+    ls = "\n".join(item for item in sorted(os.listdir(home)))
+    return render_template("ls.html", ls=ls)

@@ -1,36 +1,85 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <style type="text/css">
-     body {
-       margin: 40px auto;
-       max-width: 650px;
-       line-height: 1.6;
-       font-size: 13pt;
-       color: #444;
-       bgcolor: #eee;
-       padding: 0 10px;
-     }
-     h1, h2, h3 {
-       line-height: 1.2;
-     }
-    </style>
-  </head>
-  <body>
+{% extends "bootstrap/base.html" %}
+{% block html_attribs %} lang="en" {% endblock %}
+{% block title %} JupyterAdmin {% endblock %}
+{% block head %}
+{{ super() }}
+<style>
+ body {
+   padding-top: 20px;
+   padding-bottom: 20px;
+ }
+
+ .navbar {
+   margin-bottom: 20px;
+ }
+</style>
+{% endblock %}
+{% block body %}
+<div class="container">
+  {{ super() }}
+</div>
+{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">JupyterAdmin</a>
+    </div>
+    {% if current_user.is_authenticated %}
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="{{ url_for('index') }}">Home</a></li>
+        <li><a href="{{ url_for('passwd') }}">Change password</a></li>
+        {% if session.is_admin %}
+        <li><a href="{{ url_for('adduser') }}">Add new user</a></li>
+        {% endif %}
+        <li><a href="{{ url_for('ls') }}">List home directory</a></li>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="active"><a class="small">Logged in as: {{ session.username }}</a></li>
+        <li><a href="{{ url_for('logout')}}">Log out</a></li>
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
     {% with messages = get_flashed_messages() %}
     {% if messages %}
-    <ul class=flashes>
+    <ul class="flashes">
       {% for message in messages %}
       <li>{{ message }}</li>
       {% endfor %}
     </ul>
     {% endif %}
     {% endwith %}
-    {% block content %}
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    {% block main %}
     {% endblock %}
-  </body>
-</html>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+{% endblock %}
 <!-- Local Variables: -->
 <!-- mode: web -->
 <!-- web-mode-markup-indent-offset: 2 -->
