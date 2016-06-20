@@ -81,13 +81,6 @@ def login():
     return render_template("login.html", form=form)
 
 
-@app.route("/admin/secret")
-@login_required
-def secret():
-    assert False
-    return render_template("secret.html")
-
-
 @app.route("/admin/passwd")
 @login_required
 def passwd():
