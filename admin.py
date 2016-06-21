@@ -21,6 +21,7 @@ lm = LoginManager()
 lm.init_app(app)
 lm.login_view = "login"
 lm.session_protection = "strong"
+lm.login_message_category = "info"
 Bootstrap(app)
 pam = pam.pam()
 
@@ -93,13 +94,16 @@ def flash_sudo_errors(f, *args):
         f(*args)
         return
     except sudo.ChpasswdError as e:
-        flash("Error changing password: " + str(e))
+        flash("Error changing password: " + str(e), "danger")
     except sudo.AdduserError as e:
-        flash("Error adding user: " + str(e))
+        flash("Error adding user: " + str(e), "danger")
     except sudo.UsermodError as e:
-        flash("Error modifying user: " + str(e))
+        flash("Error modifying user: " + str(e), "danger")
     except sudo.LnError as e:
-        flash("Error linking directory: " + str(e))
+        flash("Error linking directory: " + str(e), "danger")
+    flash("Note that if the action you tried to perform consists of a series "
+          "of individual commands, all of them up to this one were applied "
+          "successfully.", "info")
     raise SudoError
 
 
@@ -124,9 +128,9 @@ def login():
                            if username in g.gr_mem)
             session.update(username=username, is_admin=is_admin)
             login_user(User())
-            flash("Login successful.")
+            flash("Login successful.", "success")
             return redirect(request.args.get("next", url_for("index")))
-        flash("Invalid username / password combination.")
+        flash("Invalid username / password combination.", "danger")
     return render_template("form.html", form=form)
 
 
@@ -147,7 +151,7 @@ def chpasswd():
                               form.password.data)
         except SudoError:
             return redirect(url_for("chpasswd"))
-        flash("Changed password for user " + repr(session["username"]))
+        flash("Changed password for user " + repr(session["username"]), "success")
         return redirect(url_for("index"))
     return render_template("form.html", form=form)
 
@@ -163,7 +167,7 @@ def adduser():
                               form.password.data, name, form.edu.data)
         except SudoError:
             return redirect(url_for("adduser"))
-        flash("Added new user " + repr(form.username.data))
+        flash("Added new user " + repr(form.username.data), "success")
         return redirect(url_for("index"))
     return render_template("form.html", form=form)
 
