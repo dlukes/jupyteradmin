@@ -4,7 +4,7 @@
   <a href="https://jupyter.korpus.cz">jupyter.korpus.cz</a>. You can:
 </p>
 <ul>
-  <li><a href="{{ url_for('passwd') }}">change your password</a></li>
+  <li><a href="{{ url_for('chpasswd') }}">change your password</a></li>
   {% if session.is_admin %}
   <li><a href="{{ url_for('adduser') }}">add new users to the system</a></li>
   {% endif %}

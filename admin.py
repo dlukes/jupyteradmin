@@ -2,15 +2,17 @@ import os
 import grp
 import pam
 
-from flask import Flask, flash, redirect, render_template, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session,\
+    url_for
 from flask_login import LoginManager, UserMixin, login_user, logout_user,\
     login_required
 from flask_wtf import Form
-from wtforms import PasswordField, StringField, SubmitField
-from wtforms.validators import InputRequired
+from wtforms import BooleanField, PasswordField, StringField, SubmitField
+from wtforms.validators import Email, EqualTo, InputRequired
 from flask_bootstrap import Bootstrap
 
 import config
+import sudo
 
 app = Flask(__name__)
 app.secret_key = os.urandom(32)
@@ -21,6 +23,10 @@ lm.login_view = "login"
 lm.session_protection = "strong"
 Bootstrap(app)
 pam = pam.pam()
+
+
+class SudoError(Exception):
+    pass
 
 
 class User(UserMixin):
@@ -42,6 +48,36 @@ class LoginForm(Form):
     submit = SubmitField("Log in")
 
 
+class AddUserForm(Form):
+
+    username = StringField("Username", validators=[
+        InputRequired(message="Please provide a username.")])
+    name = StringField("Name", validators=[
+        InputRequired(message="Please provide a name.")])
+    surname = StringField("Surname", validators=[
+        InputRequired(message="Please provide a surname.")])
+    email = StringField("E-mail", validators=[
+        InputRequired(message="Please provide an e-mail address."),
+        Email(message="Not a valid e-mail address.")])
+    password = PasswordField("Password", validators=[
+        EqualTo("confirm", message="Passwords must match."),
+        InputRequired(message="Please provide a password.")])
+    confirm = PasswordField("Repeat password", validators=[
+        InputRequired(message="Please confirm password.")])
+    edu = BooleanField("Grant admin rights")
+    submit = SubmitField("Register")
+
+
+class ChpasswdForm(Form):
+
+    password = PasswordField("Password", validators=[
+        EqualTo("confirm", message="Passwords must match."),
+        InputRequired(message="Please provide a password.")])
+    confirm = PasswordField("Repeat password", validators=[
+        InputRequired(message="Please confirm password.")])
+    submit = SubmitField("Change password")
+
+
 #####################
 # UTILITY FUNCTIONS #
 #####################
@@ -52,16 +88,19 @@ def load_user(username):
     return User()
 
 
-def flash_form_errors(form):
-    for field, errors in form.errors.items():
-        for error in errors:
-            flash("Error in {!r}: {}".format(
-                getattr(form, field).label.text, error))
-
-
-# @app.context_processor
-# def utility_processor():
-#     return dict(quick_form=quick_form)
+def flash_sudo_errors(f, *args):
+    try:
+        f(*args)
+        return
+    except sudo.ChpasswdError as e:
+        flash("Error changing password: " + str(e))
+    except sudo.AdduserError as e:
+        flash("Error adding user: " + str(e))
+    except sudo.UsermodError as e:
+        flash("Error modifying user: " + str(e))
+    except sudo.LnError as e:
+        flash("Error linking directory: " + str(e))
+    raise SudoError
 
 
 ##########
@@ -83,18 +122,12 @@ def login():
         if pam.authenticate(username, password):
             is_admin = any(g.gr_name == "edu" for g in grp.getgrall()
                            if username in g.gr_mem)
-            # TODO: is it really necessary to store the password here? can't I
-            # just allow the Flask process to have the required privileges and
-            # exercise them based on whether the user is logged in (and is an
-            # admin)?
-            session.update(username=username, password=password,
-                           is_admin=is_admin)
+            session.update(username=username, is_admin=is_admin)
             login_user(User())
             flash("Login successful.")
-            return redirect(url_for("index"))
+            return redirect(request.args.get("next", url_for("index")))
         flash("Invalid username / password combination.")
-    flash_form_errors(form)
-    return render_template("login.html", form=form)
+    return render_template("form.html", form=form)
 
 
 @app.route("/admin/logout")
@@ -104,16 +137,35 @@ def logout():
     return redirect(url_for("login"))
 
 
-@app.route("/admin/passwd")
+@app.route("/admin/chpasswd", methods=["GET", "POST"])
 @login_required
-def passwd():
-    assert False
+def chpasswd():
+    form = ChpasswdForm()
+    if form.validate_on_submit():
+        try:
+            flash_sudo_errors(sudo.chpasswd, session["username"],
+                              form.password.data)
+        except SudoError:
+            return redirect(url_for("chpasswd"))
+        flash("Changed password for user " + repr(session["username"]))
+        return redirect(url_for("index"))
+    return render_template("form.html", form=form)
 
 
-@app.route("/admin/adduser")
+@app.route("/admin/adduser", methods=["GET", "POST"])
 @login_required
 def adduser():
-    assert False
+    form = AddUserForm()
+    if form.validate_on_submit():
+        name = (form.name.data + " " + form.surname.data).replace(",", "_")
+        try:
+            flash_sudo_errors(sudo.adduser, form.username.data,
+                              form.password.data, name, form.edu.data)
+        except SudoError:
+            return redirect(url_for("adduser"))
+        flash("Added new user " + repr(form.username.data))
+        return redirect(url_for("index"))
+    return render_template("form.html", form=form)
 
 
 @app.route("/admin/ls")
