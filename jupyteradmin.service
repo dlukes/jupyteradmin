@@ -1,0 +1,11 @@
+[Unit]
+Description=JupyterAdmin
+After=network-online.target
+
+[Service]
+User=jupyteradmin
+ExecStart=/opt/admin/run.sh
+WorkingDirectory=/opt/admin
+
+[Install]
+WantedBy=multi-user.target

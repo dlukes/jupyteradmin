@@ -22,4 +22,5 @@ which are run with ``sudo`` and therefore need to be enabled in this way.)
 The app is backed by a SQLite3 database, which can be initialized by running
 :command:`flask initdb` (with the ``FLASK_APP`` environment variable correctly
 set) in the application root. Remember to allow the jupyteradmin user to write
-to it (e.g. with :command:`chown jupyterhub:nogroup admin.db`).
+to it (e.g. with :command:`chown jupyterhub:nogroup admin.db`) **and its parent
+directory** (required by SQLite and/or its Python integration).
