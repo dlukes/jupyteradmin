@@ -1,15 +1,9 @@
 {% extends "base.html" %}
 {% block main %}
 <p>Welcome to the admin panel for
-  <a href="https://jupyter.korpus.cz">jupyter.korpus.cz</a>. You can:
+  <a href="https://jupyter.korpus.cz">jupyter.korpus.cz</a>. The navbar above
+  provides access to all actions currently available to you.
 </p>
-<ul>
-  <li><a href="{{ url_for('chpasswd') }}">change your password</a></li>
-  {% if session.is_admin %}
-  <li><a href="{{ url_for('adduser') }}">add new users to the system</a></li>
-  {% endif %}
-  <li><a href="{{ url_for('ls') }}">list the contents of your home directory</a></li>
-</ul>
 {% endblock %}
 <!-- Local Variables: -->
 <!-- mode: web -->

@@ -18,3 +18,8 @@ following contents::
 (In case of issues, verify if the program paths above are correct using
 :command:`which <program_name>` or check :file:`sudo.py` for additional commands
 which are run with ``sudo`` and therefore need to be enabled in this way.)
+
+The app is backed by a SQLite3 database, which can be initialized by running
+:command:`flask initdb` (with the ``FLASK_APP`` environment variable correctly
+set) in the application root. Remember to allow the jupyteradmin user to write
+to it (e.g. with :command:`chown jupyterhub:nogroup admin.db`).

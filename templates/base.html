@@ -29,7 +29,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="#">JupyterAdmin</a>
+      <a class="navbar-brand" href="{{ config.DOMAIN }}{{ url_for('index') }}">JupyterAdmin</a>
     </div>
     {% if current_user.is_authenticated %}
     <div id="navbar" class="navbar-collapse collapse">
@@ -42,7 +42,16 @@
         </li>
         <li><a href="{{ url_for('chpasswd') }}">Change password</a></li>
         {% if session.is_admin %}
-        <li><a href="{{ url_for('adduser') }}">Add new user</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+             role="button" aria-haspopup="true" aria-expanded="false">
+            Add new user(s) <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li><a href="{{ url_for('adduser') }}">Directly</a></li>
+            <li><a href="{{ url_for('invite') }}">Send invitations</a></li>
+          </ul>
+        </li>
         {% endif %}
         <li><a href="{{ url_for('ls') }}">List home directory</a></li>
         </li>
