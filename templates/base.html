@@ -4,13 +4,28 @@
 {% block head %}
 {{ super() }}
 <style>
+ html {
+   position: relative;
+   min-height: 100%;
+ }
+
  body {
    padding-top: 20px;
    padding-bottom: 20px;
+   /* Margin bottom by footer height */
+   margin-bottom: 60px;
  }
 
  .navbar {
    margin-bottom: 20px;
+ }
+
+ .footer {
+   position: absolute;
+   bottom: 0;
+   /* Set the fixed height of the footer here */
+   height: 60px;
+   width: 100%;
  }
 </style>
 {% endblock %}
@@ -18,6 +33,17 @@
 <div class="container">
   {{ super() }}
 </div>
+<footer class="footer text-center">
+  <a href="http://korpus.cz">Ústav Českého národního korpusu</a>
+  <a href="http://ff.cuni.cz">FF UK</a> |
+  Need assistance? Let us know at
+  <script type="text/javascript">
+   <!--
+                                 h='&#x6b;&#x6f;&#114;&#112;&#x75;&#x73;&#46;&#x63;&#122;';a='&#64;';n='&#108;&#x75;&#x6b;&#x65;&#x73;';e=n+a+h;
+   document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail">'+e+'<\/'+'a'+'>');
+   // -->
+  </script><noscript>&#108;&#x75;&#x6b;&#x65;&#x73;&#32;&#x61;&#116;&#32;&#x6b;&#x6f;&#114;&#112;&#x75;&#x73;&#32;&#100;&#x6f;&#116;&#32;&#x63;&#122;</noscript>!
+</footer>
 {% endblock %}
 {% block navbar %}
 <nav class="navbar navbar-default">
