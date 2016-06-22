@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block main %}
+<table class="table table-hover">
+  <thead>
+    <tr>
+      {% for c in header %}
+      <th>{{ c }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      {% for v in r %}
+      <td>{{ v }}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+<!-- Local Variables: -->
+<!-- mode: web -->
+<!-- web-mode-markup-indent-offset: 2 -->
+<!-- web-mode-css-indent-offset: 2 -->
+<!-- End: -->

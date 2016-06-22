@@ -53,7 +53,18 @@
           </ul>
         </li>
         {% endif %}
-        <li><a href="{{ url_for('ls') }}">List home directory</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+             role="button" aria-haspopup="true" aria-expanded="false">
+            List <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li><a href="{{ url_for('lshome') }}">Home directory</a></li>
+            {% if session.is_admin %}
+            <li><a href="{{ url_for('lsusers') }}">Users</a></li>
+            <li><a href="{{ url_for('lsinvites') }}">Invitations</a></li>
+            {% endif %}
+          </ul>
         </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">

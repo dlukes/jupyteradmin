@@ -234,6 +234,12 @@ def _adduser(form, invite=None):
     return render_template("form.html", form=form)
 
 
+def prep_table(model):
+    header = list(c.name for c in model.__table__.c)
+    rows = [[getattr(r, c) for c in header] for r in model.query.all()]
+    return header, rows
+
+
 ##########
 # ROUTES #
 ##########
@@ -336,19 +342,26 @@ def accept(uuid):
     return render_template("form.html", form=form)
 
 
-@app.route("/admin/ls")
+@app.route("/admin/list/home")
 @login_required
-def ls():
+def lshome():
     home = os.path.join("/home", session["username"])
     ls = "\n".join(item for item in sorted(os.listdir(home)))
-    return render_template("ls.html", ls=ls)
+    return render_template("lshome.html", ls=ls)
 
 
-@app.route("/admin/users")
+@app.route("/admin/list/users")
 @login_required
-def users():
-    # TODO
-    pass
+def lsusers():
+    header, rows = prep_table(User)
+    return render_template("table.html", header=header, rows=rows)
+
+
+@app.route("/admin/users/list/invites")
+@login_required
+def lsinvites():
+    header, rows = prep_table(Invite)
+    return render_template("table.html", header=header, rows=rows)
 
 
 ################
