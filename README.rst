@@ -24,3 +24,11 @@ The app is backed by a SQLite3 database, which can be initialized by running
 set) in the application root. Remember to allow the jupyteradmin user to write
 to it (e.g. with :command:`chown jupyterhub:nogroup admin.db`) **and its parent
 directory** (required by SQLite and/or its Python integration).
+
+License
+=======
+
+Copyright © 2016 `ÚČNK <http://korpus.cz>`_/David Lukeš
+
+Distributed under the `GNU General Public License v3
+<http://www.gnu.org/licenses/gpl-3.0.en.html>`_.
