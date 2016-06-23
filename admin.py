@@ -211,6 +211,7 @@ def with_flash_errors(f, *args):
 
 
 def _adduser(form, invite=None):
+    username = form.username.data
     name = (form.name.data + " " + form.surname.data).replace(",", "_")
     edu = form.edu.data if hasattr(form, "edu") else False
     if invite is not None:
@@ -218,19 +219,27 @@ def _adduser(form, invite=None):
         email = invite.email
     else:
         email = form.email.data
-    user = User(form.username.data, name, email, edu)
-    db.session.add(user)
-    try:
-        with_flash_errors(sudo.adduser, form.username.data,
-                          form.password.data, name, edu)
-        db.session.commit()
-        flash("User {} created.".format(form.username.data), "success")
-        return redirect(url_for("index"))
-    except SQLAlchemyError as e:
-        flash("Error updating user database: " + str(e), "danger")
-    except AlreadyFlashedError:
-        pass
-    db.session.rollback()
+    try_create = True
+    if User.query.filter_by(username=username).first() is not None:
+        flash("User {!r} already exists.".format(username), "danger")
+        try_create = False
+    if User.query.filter_by(email=email).first() is not None:
+        flash("User with e-mail {!r} already exists.".format(email), "danger")
+        try_create = False
+    if try_create:
+        user = User(username, name, email, edu)
+        db.session.add(user)
+        try:
+            with_flash_errors(sudo.adduser, form.username.data,
+                              form.password.data, name, edu)
+            db.session.commit()
+            flash("User {} created.".format(form.username.data), "success")
+            return redirect(url_for("index"))
+        except SQLAlchemyError as e:
+            flash("Error updating user database: " + str(e), "danger")
+        except AlreadyFlashedError:
+            pass
+        db.session.rollback()
     return render_template("form.html", form=form)
 
 
