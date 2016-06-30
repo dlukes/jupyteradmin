@@ -4,6 +4,26 @@
   <a href="https://jupyter.korpus.cz">jupyter.korpus.cz</a>. The navbar above
   provides access to all actions currently available to you.
 </p>
+<p>With your account, you can take advantage of the following services (using the
+  same credentials you entered when logging into this admin panel):
+</p>
+<ul>
+  <li>the <a href="{{ config.DOMAIN }}" target="_blank">Jupyter Notebook</a> Python
+    <abbr title="Integrated Development Environment">IDE</abbr>
+  </li>
+  <li>the <a href="{{ config.DOMAIN }}/r" target="_blank">RStudio</a> R
+    <abbr title="Integrated Development Environment">IDE</abbr>
+  </li>
+  <li>the Cloud9 general purpose
+    <abbr title="Integrated Development Environment">IDE</abbr>
+    (complete with text editor, shell access etc., for more comfortable coding
+    than over a terminal SSH session; best accessed through the Ground8 utility,
+    available for download for
+    <a href="{{ url_for('static', filename='files/linux/Ground8') }}" target="_blank">Linux</a>,
+    <a href="{{ url_for('static', filename='files/macos/Ground8') }}" target="_blank">macOS</a> and
+    <a href="{{ url_for('static', filename='files/win/Ground8.exe') }}" target="_blank">Windows</a>)
+  </li>
+</ul>
 {% endblock %}
 <!-- Local Variables: -->
 <!-- mode: web -->

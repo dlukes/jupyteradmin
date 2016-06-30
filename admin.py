@@ -21,7 +21,7 @@ from flask_bootstrap import Bootstrap
 import config
 import sudo
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="/admin/static")
 app.secret_key = os.urandom(32)
 app.config.from_object(config.Dev if app.config.get("DEBUG") else config.Prod)
 lm = LoginManager()
