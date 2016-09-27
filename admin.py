@@ -12,7 +12,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user,\
 from flask_wtf import Form
 from wtforms import BooleanField, PasswordField, StringField, SubmitField,\
     TextAreaField
-from wtforms.validators import Email, EqualTo, InputRequired, Length
+from wtforms.validators import Email, EqualTo, InputRequired, Length, Regexp
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
 from flask_sendmail import Mail, Message
@@ -36,6 +36,8 @@ pam = pam.pam()
 tfml = app.config["TEXT_FIELD_MAX_LEN"]
 length_validator = Length(
     max=tfml, message="Maximum {} characters allowed.".format(tfml))
+lc_ascii_validator = Regexp(
+    r"^[a-z]+$", message="Username must consist of lowercase letters only, a–z.")
 
 
 ##############
@@ -124,7 +126,7 @@ class LoginForm(Form):
 class AddUserForm(Form):
 
     username = StringField("Username", validators=[
-        length_validator,
+        length_validator, lc_ascii_validator,
         InputRequired(message="Please provide a username.")])
     name = StringField("Name", validators=[
         length_validator,
@@ -158,7 +160,7 @@ class ChpasswdForm(Form):
 class AcceptInviteForm(Form):
 
     username = StringField("Username", validators=[
-        length_validator,
+        length_validator, lc_ascii_validator,
         InputRequired(message="Please provide a username.")])
     name = StringField("Name", validators=[
         length_validator,
