@@ -177,7 +177,7 @@ class AcceptInviteForm(Form):
 class InviteForm(Form):
 
     emails = TextAreaField(
-        "Whitespace and/or comma separated e-mails", validators=[
+        "Whitespace separated e-mail addresses", validators=[
         InputRequired(message="Please provide a list of e-mails.")])
     submit = SubmitField("Send invitations")
 
@@ -314,7 +314,16 @@ def invite():
     form = InviteForm()
     if form.validate_on_submit():
         summary = ("Invitations sent.", "success")
-        for email in re.split(r"[,\s]\s*", form.emails.data):
+        for email in set(re.findall(r"\S+", form.emails.data)):
+            if email.endswith(","):
+                email, old = email.rstrip(","), email
+                flash("Sending to {!r} instead of {!r}; please don't use "
+                      "commas as separators in the future.".format(email, old),
+                      "warning")
+            if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+                flash("E-mail address {!r} looks invalid, refusing to "
+                      "send.".format(email), "danger")
+                continue
             # TODO: committing in a loop is not a very good idea, but on the
             # other hand, it's good to know adding the invite to the db
             # succeeded before notifying the user...
