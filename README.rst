@@ -25,6 +25,14 @@ set) in the application root. Remember to allow the jupyteradmin user to write
 to it (e.g. with :command:`chown jupyterhub:nogroup admin.db`) **and its parent
 directory** (required by SQLite and/or its Python integration).
 
+Mail
+====
+
+``flask-sendmail`` needs ``postfix`` to be installed and set up to run
+correctly, although confusingly, it somehow worked with some providers (GMail)
+even without ``postfix``. With others, delivery failed with "Unroutable email
+address".
+
 License
 =======
 
