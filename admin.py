@@ -15,6 +15,7 @@ from wtforms import BooleanField, PasswordField, StringField, SubmitField,\
 from wtforms.validators import Email, EqualTo, InputRequired, Length, Regexp
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
+from flask_migrate import Migrate
 from flask_sendmail import Mail, Message
 from flask_bootstrap import Bootstrap
 
@@ -30,6 +31,7 @@ lm.login_view = "login"
 lm.session_protection = "strong"
 lm.login_message_category = "info"
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 mail = Mail(app)
 Bootstrap(app)
 pam = pam.pam()
