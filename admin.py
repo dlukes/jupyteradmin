@@ -68,6 +68,7 @@ class User(db.Model, UserMixin):
     name = db.Column(db.String(tfml))
     email = db.Column(db.String(tfml), unique=True)
     edu = db.Column(db.Boolean, nullable=False)
+    group = db.Column(db.String(tfml))
 
     def __init__(self, username, name, email, edu):
         self.username = username
