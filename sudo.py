@@ -1,6 +1,10 @@
 import os
 from subprocess import PIPE, run
 
+# TODO: it's probably unnecessary and cumbersome to create a bunch of custom
+# error classes... Get rid of them and use RuntimeErrors, if you ever get
+# around to doing so.
+
 
 class ChpasswdError(Exception):
     pass

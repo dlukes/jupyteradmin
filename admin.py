@@ -209,6 +209,8 @@ def with_flash_errors(f, *args):
         flash("Error modifying user: " + str(e), "danger")
     except sudo.LnError as e:
         flash("Error linking directory: " + str(e), "danger")
+    except Exception as e:
+        flash("Unspecified exception: " + str(e), "danger")
     flash("Note that if the action you tried to perform consists of a series "
           "of individual commands, all of them up to this one were applied "
           "successfully.", "info")
