@@ -47,7 +47,7 @@ def adduser(username, passwd, gecos, edu):
         ret = run(["sudo", "usermod", "-aG", "edu", username], stderr=PIPE)
         if ret.returncode != 0:
             raise UsermodError(_stringify(ret))
-    ln_src = "/cnk/work/edu"
+    ln_src = "/cnk/edu"
     ln_dest = os.path.join("/home", username, "edu")
     ret = run(["sudo", "ln", "-sT", ln_src, ln_dest], stderr=PIPE)
     if ret.returncode != 0:
