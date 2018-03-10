@@ -146,7 +146,7 @@ class AddUserForm(Form):
         InputRequired(message="Please provide a password.")])
     confirm = PasswordField("Repeat password", validators=[
         InputRequired(message="Please confirm password.")])
-    edu = BooleanField("Grant admin rights")
+    edu = BooleanField("Allow adding new users and writing edu group directories")
     submit = SubmitField("Register")
 
 
