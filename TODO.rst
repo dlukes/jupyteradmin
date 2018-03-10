@@ -4,3 +4,4 @@
   - purge record in jupyteradmin db
   - purge record in jupyterhub db (!!! -- or else jupyterhub will crash if the
     user tries to log in)
+- password reset
