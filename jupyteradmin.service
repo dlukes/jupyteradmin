@@ -6,6 +6,7 @@ After=network-online.target
 User=jupyteradmin
 ExecStart=/opt/admin/run.sh
 WorkingDirectory=/opt/admin
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
