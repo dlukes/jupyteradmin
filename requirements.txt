@@ -3,7 +3,11 @@ dominate==2.2.0
 Flask==0.11.1
 Flask-Bootstrap==3.3.6.0
 Flask-Login==0.3.2
-Flask-Sendmail==0.2
+Flask-Migrate==1.8.1
+# Flask-Migrate requires alembic, which we need to restrict to a version
+# compatible with the version of SQLALchemy we're using
+alembic==1.0
+Flask-Sendmail==0.1
 Flask-SQLAlchemy==2.1
 Flask-WTF==0.12
 gunicorn==19.6.0
