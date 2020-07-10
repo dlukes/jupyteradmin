@@ -7,7 +7,8 @@ Flask-Migrate==1.8.1
 # Flask-Migrate requires alembic, which we need to restrict to a version
 # compatible with the version of SQLALchemy we're using
 alembic==1.0
-Flask-Sendmail==0.1
+# Flask-Sendmail==0.2 is only available from GitHub
+git+https://github.com/ajford/flask-sendmail@65f41c0e943a70cb599d60c4bfe11a3b9f273355
 Flask-SQLAlchemy==2.1
 Flask-WTF==0.12
 gunicorn==19.6.0
