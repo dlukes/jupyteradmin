@@ -33,6 +33,24 @@ correctly, although confusingly, it somehow worked with some providers (GMail)
 even without ``postfix``. With others, delivery failed with "Unroutable email
 address".
 
+Migrations
+==========
+
+Get inspiration from commits doing them, but basically just modify the
+app's models and then:
+
+```sh
+source dev-env.sh
+
+# if the production db should be migrated
+export FLASK_DEBUG=
+chmod 777 admin.db
+
+flask db migrate -m "..."
+# inspect and tweak the migration file
+flask db upgrade
+```
+
 License
 =======
 
