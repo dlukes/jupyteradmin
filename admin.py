@@ -1,6 +1,7 @@
 import os
 import grp
 import pam
+from pathlib import Path
 
 import uuid
 import regex as re
@@ -11,7 +12,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user,\
     login_required
 from flask_wtf import Form
 from wtforms import BooleanField, PasswordField, StringField, SubmitField,\
-    TextAreaField
+    TextAreaField, SelectField
 from wtforms.validators import Email, EqualTo, InputRequired, Length, Regexp
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
@@ -21,6 +22,7 @@ from flask_bootstrap import Bootstrap
 
 import config
 import sudo
+import r
 
 app = Flask(__name__, static_url_path="/admin/static")
 app.secret_key = os.urandom(32)
@@ -159,6 +161,11 @@ class ChpasswdForm(Form):
         InputRequired(message="Please confirm password.")])
     submit = SubmitField("Change password")
 
+
+class RVersionForm(Form):
+
+    rversion = SelectField("Preferred R version")
+    submit = SubmitField("Apply")
 
 class AcceptInviteForm(Form):
 
@@ -302,6 +309,24 @@ def chpasswd():
         except AlreadyFlashedError:
             return redirect(url_for("chpasswd"))
         flash("Changed password for user {!r}.".format(session["username"]), "success")
+        return redirect(url_for("index"))
+    return render_template("form.html", form=form)
+
+
+@app.route("/admin/rversion", methods=["GET", "POST"])
+@login_required
+def rversion():
+    form = RVersionForm()
+    available_versions = [(v.name, v.name) for v in Path(app.config["R_VERSIONS"]).glob("*.*.*")]
+    default = "default"
+    available_versions.insert(0, (default, default))
+    form.rversion.choices = available_versions
+    if form.validate_on_submit():
+        try:
+            with_flash_errors(r.set_version, session["username"], form.rversion.data)
+        except AlreadyFlashedError:
+            return redirect(url_for("rversion"))
+        flash("Preferred R version has been set to {}.".format(form.rversion.data), "success")
         return redirect(url_for("index"))
     return render_template("form.html", form=form)
 
