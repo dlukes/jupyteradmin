@@ -22,7 +22,6 @@ from flask_bootstrap import Bootstrap
 
 import config
 import sudo
-import r
 
 app = Flask(__name__, static_url_path="/admin/static")
 app.secret_key = os.urandom(32)
@@ -71,6 +70,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(tfml), unique=True)
     edu = db.Column(db.Boolean, nullable=False)
     group = db.Column(db.String(tfml))
+    rversion = db.Column(db.String(tfml))
 
     def __init__(self, username, name, email, edu):
         self.username = username
@@ -164,8 +164,18 @@ class ChpasswdForm(Form):
 
 class RVersionForm(Form):
 
-    rversion = SelectField("Preferred R version")
+    # NOTE: there's no easy way to set the default dynamically
+    # (technically, it can be a callable, and you can store the value on
+    # session from the request handler and retrieve it with a function,
+    # but ugh), but choices *can* be set dynamically, so the workaround
+    # is to rely on a special value, *, to indicate which choice should
+    # be selected by default, because in that case, we actually don't
+    # need the value -- if the user selects that, it just means that
+    # nothing has to change, because we make sure the default is any
+    # previously selected setting
+    rversion = SelectField("Preferred R version", default="*")
     submit = SubmitField("Apply")
+
 
 class AcceptInviteForm(Form):
 
@@ -316,17 +326,39 @@ def chpasswd():
 @app.route("/admin/rversion", methods=["GET", "POST"])
 @login_required
 def rversion():
+    username = session["username"]
+    try:
+        user = User.query.filter_by(username=username).first()
+    except SQLAlchemyError as e:
+        flash("Error retrieving user info for {!r} from database: {}".format(username, e), "danger")
+        return redirect(url_for("index"))
+    if user is None:
+        flash("User {!r} not found in database.".format(username), "warning")
+        return redirect(url_for("index"))
+
     form = RVersionForm()
-    available_versions = [(v.name, v.name) for v in Path(app.config["R_VERSIONS"]).glob("*.*.*")]
     default = "default"
-    available_versions.insert(0, (default, default))
+    available_versions = [
+        ("*" if user.rversion == v.name else v.name, v.name)
+        for v in Path(app.config["R_VERSIONS"]).glob("*.*.*")
+    ]
+    available_versions.insert(0, ("*" if user.rversion is None else default, default))
     form.rversion.choices = available_versions
+
     if form.validate_on_submit():
+        version = form.rversion.data
+        if version == "*":
+            flash("Preferred R version not modified.", "info")
+            return redirect(url_for("index"))
         try:
-            with_flash_errors(r.set_version, session["username"], form.rversion.data)
-        except AlreadyFlashedError:
-            return redirect(url_for("rversion"))
-        flash("Preferred R version has been set to {}.".format(form.rversion.data), "success")
+            user.rversion = None if version == default else version
+            db.session.commit()
+        except SQLAlchemyError as e:
+            flash("Error setting preferred R version for user {!r} to {}: {}".format(
+                username, version, e
+            ), "danger")
+            return render_template("form.html", form=form)
+        flash("Preferred R version has been set to {}.".format(version), "success")
         return redirect(url_for("index"))
     return render_template("form.html", form=form)
 
