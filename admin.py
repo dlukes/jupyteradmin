@@ -1,6 +1,7 @@
 import os
 import grp
 import pam
+import subprocess as sp
 from pathlib import Path
 
 import uuid
@@ -338,12 +339,18 @@ def rversion():
 
     form = RVersionForm()
     default = "default"
+    default_version = sp.run(
+        ["R", "--vanilla", "--slave", "-e", "cat(version$major, '.', version$minor, sep='')"],
+        stdout=sp.PIPE,
+        encoding="utf-8"
+    ).stdout
+    default_label = f"{default} (currently {default_version})"
     available_versions = [
         ("*" if user.rversion == v.name else v.name, v.name)
         for v in Path(app.config["R_VERSIONS"]).glob("*.*.*")
     ]
     available_versions.sort(key=lambda v: [int(x) for x in v[1].split(".")])
-    available_versions.insert(0, ("*" if user.rversion is None else default, default))
+    available_versions.insert(0, ("*" if user.rversion is None else default, default_label))
     form.rversion.choices = available_versions
 
     if form.validate_on_submit():
