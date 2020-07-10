@@ -342,6 +342,7 @@ def rversion():
         ("*" if user.rversion == v.name else v.name, v.name)
         for v in Path(app.config["R_VERSIONS"]).glob("*.*.*")
     ]
+    available_versions.sort(key=lambda v: [int(x) for x in v[1].split(".")])
     available_versions.insert(0, ("*" if user.rversion is None else default, default))
     form.rversion.choices = available_versions
 
