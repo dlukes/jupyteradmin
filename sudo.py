@@ -30,15 +30,17 @@ def _stringify(ret):
 
 
 def chpasswd(username, passwd):
-    ret = run(["sudo", "chpasswd"], stderr=PIPE,
-              input=(username + ":" + passwd + "\n").encode("utf-8"))
+    ret = run(
+        ["sudo", "chpasswd"],
+        stderr=PIPE,
+        input=(username + ":" + passwd + "\n").encode("utf-8"),
+    )
     if ret.returncode != 0:
         raise ChpasswdError(_stringify(ret))
 
 
 def adduser(username, passwd, gecos, edu):
-    command = ["sudo", "adduser", username, "--gecos", gecos,
-               "--disabled-password"]
+    command = ["sudo", "adduser", username, "--gecos", gecos, "--disabled-password"]
     ret = run(command, stderr=PIPE)
     if ret.returncode != 0:
         raise AdduserError(_stringify(ret))

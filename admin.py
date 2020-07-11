@@ -7,13 +7,17 @@ from pathlib import Path
 import uuid
 import regex as re
 
-from flask import Flask, flash, redirect, render_template, request, session,\
-    url_for
-from flask_login import LoginManager, UserMixin, login_user, logout_user,\
-    login_required
+from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
 from flask_wtf import Form
-from wtforms import BooleanField, PasswordField, StringField, SubmitField,\
-    TextAreaField, SelectField
+from wtforms import (
+    BooleanField,
+    PasswordField,
+    StringField,
+    SubmitField,
+    TextAreaField,
+    SelectField,
+)
 from wtforms.validators import Email, EqualTo, InputRequired, Length, Regexp
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
@@ -39,9 +43,11 @@ Bootstrap(app)
 pam = pam.pam()
 tfml = app.config["TEXT_FIELD_MAX_LEN"]
 length_validator = Length(
-    max=tfml, message="Maximum {} characters allowed.".format(tfml))
+    max=tfml, message="Maximum {} characters allowed.".format(tfml)
+)
 lc_ascii_validator = Regexp(
-    r"^[a-z]+$", message="Username must consist of lowercase letters only, a–z.")
+    r"^[a-z]+$", message="Username must consist of lowercase letters only, a–z."
+)
 
 
 ##############
@@ -64,6 +70,7 @@ class User(db.Model, UserMixin):
     interface.
 
     """
+
     __tablename__ = "users"
 
     username = db.Column(db.String(tfml), primary_key=True)
@@ -90,6 +97,7 @@ class FbUser(UserMixin):
     """A fallback User class for users which are not stored in the db.
 
     """
+
     def get_id(self):
         return session["username"]
 
@@ -98,6 +106,7 @@ class Invite(db.Model):
     """An invite to register with the service.
 
     """
+
     __tablename__ = "invites"
 
     uuid = db.Column(db.String(36), primary_key=True)
@@ -122,44 +131,72 @@ class Invite(db.Model):
 
 class LoginForm(Form):
 
-    username = StringField("Username", validators=[
-        InputRequired(message="Please provide a username.")])
-    password = PasswordField("Password", validators=[
-        InputRequired(message="Please provide a password.")])
+    username = StringField(
+        "Username", validators=[InputRequired(message="Please provide a username.")]
+    )
+    password = PasswordField(
+        "Password", validators=[InputRequired(message="Please provide a password.")]
+    )
     submit = SubmitField("Log in")
 
 
 class AddUserForm(Form):
 
-    username = StringField("Username", validators=[
-        length_validator, lc_ascii_validator,
-        InputRequired(message="Please provide a username.")])
-    name = StringField("Name", validators=[
-        length_validator,
-        InputRequired(message="Please provide a name.")])
-    surname = StringField("Surname", validators=[
-        length_validator,
-        InputRequired(message="Please provide a surname.")])
-    email = StringField("E-mail", validators=[
-        length_validator,
-        InputRequired(message="Please provide an e-mail address."),
-        Email(message="Not a valid e-mail address.")])
-    password = PasswordField("Password", validators=[
-        EqualTo("confirm", message="Passwords must match."),
-        InputRequired(message="Please provide a password.")])
-    confirm = PasswordField("Repeat password", validators=[
-        InputRequired(message="Please confirm password.")])
+    username = StringField(
+        "Username",
+        validators=[
+            length_validator,
+            lc_ascii_validator,
+            InputRequired(message="Please provide a username."),
+        ],
+    )
+    name = StringField(
+        "Name",
+        validators=[length_validator, InputRequired(message="Please provide a name.")],
+    )
+    surname = StringField(
+        "Surname",
+        validators=[
+            length_validator,
+            InputRequired(message="Please provide a surname."),
+        ],
+    )
+    email = StringField(
+        "E-mail",
+        validators=[
+            length_validator,
+            InputRequired(message="Please provide an e-mail address."),
+            Email(message="Not a valid e-mail address."),
+        ],
+    )
+    password = PasswordField(
+        "Password",
+        validators=[
+            EqualTo("confirm", message="Passwords must match."),
+            InputRequired(message="Please provide a password."),
+        ],
+    )
+    confirm = PasswordField(
+        "Repeat password",
+        validators=[InputRequired(message="Please confirm password.")],
+    )
     edu = BooleanField("Allow adding new users and writing edu group directories")
     submit = SubmitField("Register")
 
 
 class ChpasswdForm(Form):
 
-    password = PasswordField("Password", validators=[
-        EqualTo("confirm", message="Passwords must match."),
-        InputRequired(message="Please provide a password.")])
-    confirm = PasswordField("Repeat password", validators=[
-        InputRequired(message="Please confirm password.")])
+    password = PasswordField(
+        "Password",
+        validators=[
+            EqualTo("confirm", message="Passwords must match."),
+            InputRequired(message="Please provide a password."),
+        ],
+    )
+    confirm = PasswordField(
+        "Repeat password",
+        validators=[InputRequired(message="Please confirm password.")],
+    )
     submit = SubmitField("Change password")
 
 
@@ -180,28 +217,45 @@ class RVersionForm(Form):
 
 class AcceptInviteForm(Form):
 
-    username = StringField("Username", validators=[
-        length_validator, lc_ascii_validator,
-        InputRequired(message="Please provide a username.")])
-    name = StringField("Name", validators=[
-        length_validator,
-        InputRequired(message="Please provide a name.")])
-    surname = StringField("Surname", validators=[
-        length_validator,
-        InputRequired(message="Please provide a surname.")])
-    password = PasswordField("Password", validators=[
-        EqualTo("confirm", message="Passwords must match."),
-        InputRequired(message="Please provide a password.")])
-    confirm = PasswordField("Repeat password", validators=[
-        InputRequired(message="Please confirm password.")])
+    username = StringField(
+        "Username",
+        validators=[
+            length_validator,
+            lc_ascii_validator,
+            InputRequired(message="Please provide a username."),
+        ],
+    )
+    name = StringField(
+        "Name",
+        validators=[length_validator, InputRequired(message="Please provide a name.")],
+    )
+    surname = StringField(
+        "Surname",
+        validators=[
+            length_validator,
+            InputRequired(message="Please provide a surname."),
+        ],
+    )
+    password = PasswordField(
+        "Password",
+        validators=[
+            EqualTo("confirm", message="Passwords must match."),
+            InputRequired(message="Please provide a password."),
+        ],
+    )
+    confirm = PasswordField(
+        "Repeat password",
+        validators=[InputRequired(message="Please confirm password.")],
+    )
     submit = SubmitField("Register")
 
 
 class InviteForm(Form):
 
     emails = TextAreaField(
-        "Whitespace separated e-mail addresses", validators=[
-        InputRequired(message="Please provide a list of e-mails.")])
+        "Whitespace separated e-mail addresses",
+        validators=[InputRequired(message="Please provide a list of e-mails.")],
+    )
     submit = SubmitField("Send invitations")
 
 
@@ -229,9 +283,12 @@ def with_flash_errors(f, *args):
         flash("Error linking directory: " + str(e), "danger")
     except Exception as e:
         flash("Unspecified exception: " + str(e), "danger")
-    flash("Note that if the action you tried to perform consists of a series "
-          "of individual commands, all of them up to this one were applied "
-          "successfully.", "info")
+    flash(
+        "Note that if the action you tried to perform consists of a series "
+        "of individual commands, all of them up to this one were applied "
+        "successfully.",
+        "info",
+    )
     raise AlreadyFlashedError
 
 
@@ -255,8 +312,9 @@ def _adduser(form, invite=None):
         user = User(username, name, email, edu)
         db.session.add(user)
         try:
-            with_flash_errors(sudo.adduser, form.username.data,
-                              form.password.data, name, edu)
+            with_flash_errors(
+                sudo.adduser, form.username.data, form.password.data, name, edu
+            )
             db.session.commit()
             flash("User {} created.".format(form.username.data), "success")
             return redirect(url_for("index"))
@@ -291,8 +349,9 @@ def login():
     if form.validate_on_submit():
         username, password = form.username.data, form.password.data
         if pam.authenticate(username, password):
-            is_admin = any(g.gr_name == "edu" for g in grp.getgrall()
-                           if username in g.gr_mem)
+            is_admin = any(
+                g.gr_name == "edu" for g in grp.getgrall() if username in g.gr_mem
+            )
             session.update(username=username, is_admin=is_admin)
             user = User.query.filter_by(username=username).first() or FbUser()
             login_user(user)
@@ -315,8 +374,7 @@ def chpasswd():
     form = ChpasswdForm()
     if form.validate_on_submit():
         try:
-            with_flash_errors(sudo.chpasswd, session["username"],
-                              form.password.data)
+            with_flash_errors(sudo.chpasswd, session["username"], form.password.data)
         except AlreadyFlashedError:
             return redirect(url_for("chpasswd"))
         flash("Changed password for user {!r}.".format(session["username"]), "success")
@@ -331,7 +389,10 @@ def rversion():
     try:
         user = User.query.filter_by(username=username).first()
     except SQLAlchemyError as e:
-        flash("Error retrieving user info for {!r} from database: {}".format(username, e), "danger")
+        flash(
+            "Error retrieving user info for {!r} from database: {}".format(username, e),
+            "danger",
+        )
         return redirect(url_for("index"))
     if user is None:
         flash("User {!r} not found in database.".format(username), "warning")
@@ -340,9 +401,15 @@ def rversion():
     form = RVersionForm()
     default = "default"
     default_version = sp.run(
-        ["R", "--vanilla", "--slave", "-e", "cat(version$major, '.', version$minor, sep='')"],
+        [
+            "R",
+            "--vanilla",
+            "--slave",
+            "-e",
+            "cat(version$major, '.', version$minor, sep='')",
+        ],
         stdout=sp.PIPE,
-        encoding="utf-8"
+        encoding="utf-8",
     ).stdout
     default_label = f"{default} (currently {default_version})"
     available_versions = [
@@ -350,7 +417,9 @@ def rversion():
         for v in Path(app.config["R_VERSIONS"]).glob("*.*.*")
     ]
     available_versions.sort(key=lambda v: [int(x) for x in v[1].split(".")])
-    available_versions.insert(0, ("*" if user.rversion is None else default, default_label))
+    available_versions.insert(
+        0, ("*" if user.rversion is None else default, default_label)
+    )
     form.rversion.choices = available_versions
 
     if form.validate_on_submit():
@@ -362,9 +431,12 @@ def rversion():
             user.rversion = None if version == default else version
             db.session.commit()
         except SQLAlchemyError as e:
-            flash("Error setting preferred R version for user {!r} to {}: {}".format(
-                username, version, e
-            ), "danger")
+            flash(
+                "Error setting preferred R version for user {!r} to {}: {}".format(
+                    username, version, e
+                ),
+                "danger",
+            )
             return render_template("form.html", form=form)
         flash("Preferred R version has been set to {}.".format(version), "success")
         return redirect(url_for("index"))
@@ -389,12 +461,17 @@ def invite():
         for email in set(re.findall(r"\S+", form.emails.data)):
             if email.endswith(","):
                 email, old = email.rstrip(","), email
-                flash("Sending to {!r} instead of {!r}; please don't use "
-                      "commas as separators in the future.".format(email, old),
-                      "warning")
+                flash(
+                    "Sending to {!r} instead of {!r}; please don't use "
+                    "commas as separators in the future.".format(email, old),
+                    "warning",
+                )
             if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-                flash("E-mail address {!r} looks invalid, refusing to "
-                      "send.".format(email), "danger")
+                flash(
+                    "E-mail address {!r} looks invalid, refusing to "
+                    "send.".format(email),
+                    "danger",
+                )
                 continue
             # TODO: committing in a loop is not a very good idea, but on the
             # other hand, it's good to know adding the invite to the db
@@ -404,14 +481,17 @@ def invite():
                 db.session.add(invite)
                 db.session.commit()
             except SQLAlchemyError as e:
-                summary = ("Encountered errors while creating invitations.",
-                           "warning")
-                flash("Error updating invitation database, no invitation "
-                      "sent to {}: {}".format(email, e), "danger")
+                summary = ("Encountered errors while creating invitations.", "warning")
+                flash(
+                    "Error updating invitation database, no invitation "
+                    "sent to {}: {}".format(email, e),
+                    "danger",
+                )
                 continue
             # TODO: wrap in a try except catching mailing errors...?
-            msg = Message("Invitation to create account at jupyter.korpus.cz",
-                          recipients=[email])
+            msg = Message(
+                "Invitation to create account at jupyter.korpus.cz", recipients=[email]
+            )
             link = app.config["DOMAIN"] + url_for("accept", uuid=invite.uuid)
             msg.html = render_template("invite.html", link=link)
             mail.send(msg)
