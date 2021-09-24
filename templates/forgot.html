@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% from "bootstrap/wtf.html" import quick_form %}
+{% block main %}
+
+<p>Forgot your password? Please enter the e-mail you used to register your account, a
+password reset link will be sent to you.</p>
+
+{{ quick_form(form, method="POST", form_type="horizontal") }}
+
+{% endblock %}

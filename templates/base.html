@@ -34,15 +34,15 @@
   {{ super() }}
 </div>
 <footer class="footer text-center">
-  <a href="http://korpus.cz">Ústav Českého národního korpusu</a>
-  <a href="http://ff.cuni.cz">FF UK</a> |
-  Need assistance? Let us know at
+  <a href="http://korpus.cz">Ústav Českého národního korpusu</a> <a href="http://ff.cuni.cz">FF UK</a> |
+  <a href="{{ url_for('forgot') }}">Forgot your password?</a> |
+  Contact:
   <script type="text/javascript">
    <!--
                                  h='&#x6b;&#x6f;&#114;&#112;&#x75;&#x73;&#46;&#x63;&#122;';a='&#64;';n='&#108;&#x75;&#x6b;&#x65;&#x73;';e=n+a+h;
    document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail">'+e+'<\/'+'a'+'>');
    // -->
-  </script><noscript>&#108;&#x75;&#x6b;&#x65;&#x73;&#32;&#x61;&#116;&#32;&#x6b;&#x6f;&#114;&#112;&#x75;&#x73;&#32;&#100;&#x6f;&#116;&#32;&#x63;&#122;</noscript>!
+  </script><noscript>&#108;&#x75;&#x6b;&#x65;&#x73;&#32;&#x61;&#116;&#32;&#x6b;&#x6f;&#114;&#112;&#x75;&#x73;&#32;&#100;&#x6f;&#116;&#32;&#x63;&#122;</noscript>
 </footer>
 {% endblock %}
 {% block navbar %}

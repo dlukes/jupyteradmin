@@ -196,6 +196,35 @@ class ChpasswdForm(Form):
     submit = SubmitField("Change password")
 
 
+class ForgotSendLinkForm(Form):
+
+    email = StringField(
+        "E-mail",
+        validators=[
+            length_validator,
+            InputRequired(message="Please provide an e-mail address."),
+            Email(message="Not a valid e-mail address."),
+        ],
+    )
+    submit = SubmitField("Request password reset")
+
+
+class ForgotResetPasswdForm(Form):
+
+    password = PasswordField(
+        "New password",
+        validators=[
+            EqualTo("confirm", message="Passwords must match."),
+            InputRequired(message="Please provide a password."),
+        ],
+    )
+    confirm = PasswordField(
+        "Repeat new password",
+        validators=[InputRequired(message="Please confirm password.")],
+    )
+    submit = SubmitField("Change password")
+
+
 class RVersionForm(Form):
 
     # NOTE: there's no easy way to set the default dynamically
@@ -375,6 +404,91 @@ def chpasswd():
             return redirect(url_for("chpasswd"))
         flash("Changed password for user {!r}.".format(session["username"]), "success")
         return redirect(url_for("index"))
+    return render_template("form.html", form=form)
+
+
+@app.route("/admin/forgot", methods=["GET", "POST"])
+def forgot():
+    """Send a link to reset forgotten password."""
+    form = ForgotSendLinkForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        try:
+            assert User.query.filter_by(email=email).first() is not None
+        except SQLAlchemyError as e:
+            flash(
+                "Error retrieving user with e-mail {!r}: {}".format(email, e), "danger"
+            )
+            return redirect(url_for("forgot"))
+        except AssertionError:
+            flash("No user with e-mail {!r}.".format(email), "warning")
+            return redirect(url_for("forgot"))
+
+        # NOTE: The password reset functionality abuses the invite system, because I
+        # don't feel like adding another table to the database which is basically the
+        # same.
+        invite = Invite(email)
+        try:
+            db.session.add(invite)
+            db.session.commit()
+        except SQLAlchemyError as e:
+            flash(
+                "Error updating database, no password reset link "
+                "sent to {!r}: {}".format(email, e),
+                "danger",
+            )
+            return redirect(url_for("forgot"))
+
+        # TODO: wrap in a try except catching mailing errors...?
+        msg = Message("Reset password for jupyter.korpus.cz", recipients=[email])
+        link = app.config["DOMAIN"] + url_for("reset", uuid=invite.uuid)
+        msg.html = render_template("reset.html", link=link)
+        mail.send(msg)
+        flash(
+            "Password reset link sent. Check your inbox at {!r}.".format(email),
+            "success",
+        )
+        return redirect(url_for("index"))
+
+    return render_template("forgot.html", form=form)
+
+
+@app.route("/admin/reset/<uuid>", methods=["GET", "POST"])
+def reset(uuid):
+    """Handle request to reset password identified by `uuid`."""
+    invite = Invite.query.filter_by(uuid=uuid, accepted=False).first()
+    if invite is None:
+        flash("Invalid password reset code {!r}.".format(uuid), "warning")
+        return redirect(url_for("index"))
+
+    user = User.query.filter_by(email=invite.email).first()
+    if user is None:
+        flash("User not found, cannot reset password.".format(uuid), "warning")
+        return redirect(url_for("index"))
+
+    form = ForgotResetPasswdForm()
+    if form.validate_on_submit():
+        try:
+            with_flash_errors(sudo.chpasswd, user.username, form.password.data)
+        except AlreadyFlashedError:
+            return redirect(url_for("reset", uuid=uuid))
+        flash(
+            "Changed password for user {!r} (e-mail: {!r}).".format(
+                user.username,
+                user.email,
+            ),
+            "success",
+        )
+
+        invite.accepted = True
+        try:
+            db.session.commit()
+        except SQLAlchemyError as e:
+            flash("Error updating database: {}".format(e), "danger")
+            db.session.rollback()
+
+        return redirect(url_for("index"))
+
     return render_template("form.html", form=form)
 
 
