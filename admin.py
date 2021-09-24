@@ -94,18 +94,14 @@ class User(db.Model, UserMixin):
 
 
 class FbUser(UserMixin):
-    """A fallback User class for users which are not stored in the db.
-
-    """
+    """A fallback User class for users which are not stored in the db."""
 
     def get_id(self):
         return session["username"]
 
 
 class Invite(db.Model):
-    """An invite to register with the service.
-
-    """
+    """An invite to register with the service."""
 
     __tablename__ = "invites"
 
