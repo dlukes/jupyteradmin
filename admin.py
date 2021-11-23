@@ -414,7 +414,8 @@ def forgot():
     if form.validate_on_submit():
         email = form.email.data
         try:
-            assert User.query.filter_by(email=email).first() is not None
+            user = User.query.filter_by(email=email).first()
+            assert user is not None
         except SQLAlchemyError as e:
             flash(
                 "Error retrieving user with e-mail {!r}: {}".format(email, e), "danger"
@@ -442,7 +443,7 @@ def forgot():
         # TODO: wrap in a try except catching mailing errors...?
         msg = Message("Reset password for jupyter.korpus.cz", recipients=[email])
         link = app.config["DOMAIN"] + url_for("reset", uuid=invite.uuid)
-        msg.html = render_template("reset.html", link=link)
+        msg.html = render_template("reset.html", username=user.username, link=link)
         mail.send(msg)
         flash(
             "Password reset link sent. Check your inbox at {!r}.".format(email),
@@ -489,7 +490,11 @@ def reset(uuid):
 
         return redirect(url_for("index"))
 
-    return render_template("form.html", form=form)
+    return render_template(
+        "form.html",
+        heading=f"Resetting password for user: <code>{user.username}</code>",
+        form=form,
+    )
 
 
 @app.route("/admin/rversion", methods=["GET", "POST"])

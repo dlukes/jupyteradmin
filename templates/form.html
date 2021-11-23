@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% from "bootstrap/wtf.html" import quick_form %}
 {% block main %}
+{% if heading is defined %}
+<h1>{{ heading | safe }}</h1>
+{% endif %}
 {{ quick_form(form, method="POST", form_type="horizontal") }}
 {% endblock %}
 <!-- Local Variables: -->
