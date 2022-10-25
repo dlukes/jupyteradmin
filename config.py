@@ -6,7 +6,7 @@ class Base:
     DEFAULT_MAIL_SENDER = ("JupyterAdmin", "noreply@" + DOMAIN)
     MAIL_FAIL_SILENTLY = False
     DOMAIN = PROTOCOL + DOMAIN
-    R_VERSIONS = "/opt/R/versions"
+    R_VERSIONS = "/opt/R"
 
 
 class Dev(Base):
