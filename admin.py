@@ -50,18 +50,14 @@ lc_ascii_validator = Regexp(
 )
 
 
-##############
-# EXCEPTIONS #
-##############
+# --------------------------------------------------------------------------- Exceptions {{{1
 
 
 class AlreadyFlashedError(Exception):
     pass
 
 
-##########
-# MODELS #
-##########
+# ------------------------------------------------------------------------------- Models {{{1
 
 
 class User(db.Model, UserMixin):
@@ -120,13 +116,10 @@ class Invite(db.Model):
         return "<Invite {!r} for {!r}>".format(self.uuid, self.email)
 
 
-#########
-# FORMS #
-#########
+# -------------------------------------------------------------------------------- Forms {{{1
 
 
 class LoginForm(Form):
-
     username = StringField(
         "Username", validators=[InputRequired(message="Please provide a username.")]
     )
@@ -137,7 +130,6 @@ class LoginForm(Form):
 
 
 class AddUserForm(Form):
-
     username = StringField(
         "Username",
         validators=[
@@ -181,7 +173,6 @@ class AddUserForm(Form):
 
 
 class ChpasswdForm(Form):
-
     password = PasswordField(
         "Password",
         validators=[
@@ -197,7 +188,6 @@ class ChpasswdForm(Form):
 
 
 class ForgotSendLinkForm(Form):
-
     email = StringField(
         "E-mail",
         validators=[
@@ -210,7 +200,6 @@ class ForgotSendLinkForm(Form):
 
 
 class ForgotResetPasswdForm(Form):
-
     password = PasswordField(
         "New password",
         validators=[
@@ -226,7 +215,6 @@ class ForgotResetPasswdForm(Form):
 
 
 class RVersionForm(Form):
-
     # NOTE: there's no easy way to set the default dynamically
     # (technically, it can be a callable, and you can store the value on
     # session from the request handler and retrieve it with a function,
@@ -241,7 +229,6 @@ class RVersionForm(Form):
 
 
 class AcceptInviteForm(Form):
-
     username = StringField(
         "Username",
         validators=[
@@ -276,7 +263,6 @@ class AcceptInviteForm(Form):
 
 
 class InviteForm(Form):
-
     emails = TextAreaField(
         "Whitespace separated e-mail addresses",
         validators=[InputRequired(message="Please provide a list of e-mails.")],
@@ -284,9 +270,7 @@ class InviteForm(Form):
     submit = SubmitField("Send invitations")
 
 
-#####################
-# UTILITY FUNCTIONS #
-#####################
+# -------------------------------------------------------------------- Utility functions {{{1
 
 
 @lm.user_loader
@@ -357,9 +341,7 @@ def prep_table(model):
     return header, rows
 
 
-##########
-# ROUTES #
-##########
+# ------------------------------------------------------------------------------- Routes {{{1
 
 
 @app.route("/admin/")
@@ -649,9 +631,7 @@ def lsinvites():
     return render_template("table.html", header=header, rows=rows)
 
 
-################
-# CLI COMMANDS #
-################
+# ------------------------------------------------------------------------- CLI commands {{{1
 
 
 @app.cli.command(help="Initialize database.")
@@ -662,3 +642,6 @@ def initdb():
         return
     db.create_all()
     print("Initialized database {!r}.".format(db_path))
+
+
+# vi: foldmethod=marker
