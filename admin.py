@@ -24,6 +24,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from flask_migrate import Migrate
 from flask_sendmail import Mail, Message
 from flask_bootstrap import Bootstrap
+import email_validator
 
 import config
 import sudo
@@ -554,20 +555,26 @@ def adduser():
 def invite():
     form = InviteForm()
     if form.validate_on_submit():
-        summary = ("Invitations sent.", "success")
+        sent = total = 0
         for email in set(re.findall(r"\S+", form.emails.data)):
+            total += 1
             if email.endswith(","):
                 email, old = email.rstrip(","), email
                 flash(
-                    "Sending to {!r} instead of {!r}; please don't use "
-                    "commas as separators in the future.".format(email, old),
+                    f"Interpreting {old!r} as {email!r}; "
+                    "please don't use commas as separators in the future.",
                     "warning",
                 )
-            if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            try:
+                email_validator.validate_email(email)
+            except email_validator.EmailNotValidError as err:
+                flash(f"Ignoring invalid e-mail address {email!r}: {err}", "danger")
+                continue
+            if (user := User.query.filter_by(email=email).first()) is not None:
                 flash(
-                    "E-mail address {!r} looks invalid, refusing to "
-                    "send.".format(email),
-                    "danger",
+                    f"Ignoring e-mail {email!r}, user {user.username!r} "
+                    "with this address already exists.",
+                    "warning",
                 )
                 continue
             # TODO: committing in a loop is not a very good idea, but on the
@@ -577,11 +584,9 @@ def invite():
             try:
                 db.session.add(invite)
                 db.session.commit()
-            except SQLAlchemyError as e:
-                summary = ("Encountered errors while creating invitations.", "warning")
+            except SQLAlchemyError as err:
                 flash(
-                    "Error updating invitation database, no invitation "
-                    "sent to {}: {}".format(email, e),
+                    f"Error updating database, no invitation sent to {email}: {err}"
                     "danger",
                 )
                 continue
@@ -592,7 +597,11 @@ def invite():
             link = app.config["DOMAIN"] + url_for("accept", uuid=invite.uuid)
             msg.html = render_template("invite.html", link=link)
             mail.send(msg)
-        flash(*summary)
+            sent += 1
+        flash(
+            f"{sent}/{total} invitation(s) sent.",
+            "success" if sent == total else "warning",
+        )
         return redirect(url_for("index"))
     return render_template("form.html", form=form)
 
