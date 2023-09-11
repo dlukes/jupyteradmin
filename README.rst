@@ -13,7 +13,9 @@ following contents::
     jupyteradmin ALL = (root) NOPASSWD: /usr/sbin/chpasswd
     jupyteradmin ALL = (root) NOPASSWD: /usr/sbin/adduser
     jupyteradmin ALL = (root) NOPASSWD: /usr/sbin/usermod
-    jupyteradmin ALL = (root) NOPASSWD: /bin/ln
+    jupyteradmin ALL = (root) NOPASSWD: /usr/bin/mkdir
+    jupyteradmin ALL = (root) NOPASSWD: /usr/bin/chown
+    jupyteradmin ALL = (root) NOPASSWD: /usr/bin/ln
 
 (In case of issues, verify if the program paths above are correct using
 :command:`which <program_name>` or check :file:`sudo.py` for additional commands

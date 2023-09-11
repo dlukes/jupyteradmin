@@ -271,6 +271,38 @@ class InviteForm(Form):
     submit = SubmitField("Send invitations")
 
 
+class LDAPUserForm(Form):
+    username = StringField(
+        "Existing LDAP username",
+        validators=[
+            length_validator,
+            lc_ascii_validator,
+            InputRequired(message="Please provide a username."),
+        ],
+    )
+    name = StringField(
+        "Name",
+        validators=[length_validator, InputRequired(message="Please provide a name.")],
+    )
+    surname = StringField(
+        "Surname",
+        validators=[
+            length_validator,
+            InputRequired(message="Please provide a surname."),
+        ],
+    )
+    email = StringField(
+        "E-mail",
+        validators=[
+            length_validator,
+            InputRequired(message="Please provide an e-mail address."),
+            Email(message="Not a valid e-mail address."),
+        ],
+    )
+    edu = BooleanField("Allow adding new users and writing edu group directories")
+    submit = SubmitField("Set up user")
+
+
 # -------------------------------------------------------------------- Utility functions {{{1
 
 
@@ -302,8 +334,9 @@ def with_flash_errors(f, *args):
     raise AlreadyFlashedError
 
 
-def _adduser(form, invite=None):
+def _adduser(form, invite=None, ldap=False):
     username = form.username.data
+    password = None if ldap else form.password.data
     name = (form.name.data + " " + form.surname.data).replace(",", "_")
     edu = form.edu.data if hasattr(form, "edu") else False
     if invite is not None:
@@ -322,9 +355,7 @@ def _adduser(form, invite=None):
         user = User(username, name, email, edu)
         db.session.add(user)
         try:
-            with_flash_errors(
-                sudo.adduser, form.username.data, form.password.data, name, edu
-            )
+            with_flash_errors(sudo.adduser, username, password, name, edu, ldap)
             db.session.commit()
             flash("User {} created.".format(form.username.data), "success")
             return redirect(url_for("index"))
@@ -615,6 +646,15 @@ def accept(uuid):
     form = AcceptInviteForm()
     if form.validate_on_submit():
         return _adduser(form, invite)
+    return render_template("form.html", form=form)
+
+
+@app.route("/admin/ldapuser", methods=["GET", "POST"])
+@login_required
+def ldapuser():
+    form = LDAPUserForm()
+    if form.validate_on_submit():
+        return _adduser(form, ldap=True)
     return render_template("form.html", form=form)
 
 
