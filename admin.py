@@ -335,15 +335,15 @@ def with_flash_errors(f, *args):
 
 
 def _adduser(form, invite=None, ldap=False):
-    username = form.username.data
-    password = None if ldap else form.password.data
-    name = (form.name.data + " " + form.surname.data).replace(",", "_")
+    username = form.username.data.strip()
+    password = None if ldap else form.password.data.strip()
+    name = (form.name.data.strip() + " " + form.surname.data.strip()).replace(",", "_")
     edu = form.edu.data if hasattr(form, "edu") else False
     if invite is not None:
         invite.accepted = True
         email = invite.email
     else:
-        email = form.email.data
+        email = form.email.data.strip()
     try_create = True
     if User.query.filter_by(username=username).first() is not None:
         flash("User {!r} already exists.".format(username), "danger")
